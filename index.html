@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Samba Share Info</title>
+    <script>
+        function updateData() {
+            fetch('/update_data')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        document.getElementById('free-space').innerText = 'Error: ' + data.error;
+                    } else {
+                        document.getElementById('free-space').innerText = 'Free Space: ' + data.free_space + ' MB';
+                        const fileList = document.getElementById('file-list');
+                        fileList.innerHTML = '';
+                        data.files.forEach(file => {
+                            const listItem = document.createElement('li');
+                            listItem.innerText = file[0] + ' (' + file[1] + ' bytes)';
+                            fileList.appendChild(listItem);
+                        });
+                        document.getElementById('last-updated').innerText = 'Last Updated: ' + data.last_updated;
+                    }
+                })
+                .catch(err => {
+                    console.error("Error fetching data:", err);
+                });
+        }
+
+        // Update every hour
+        setInterval(updateData, 3600000); // 1 hour in milliseconds
+        window.onload = updateData; // Initial update
+    </script>
+</head>
+<body>
+    <h1>Samba Share Information</h1>
+    <div>
+        <p id="free-space">Loading...</p>
+        <ul id="file-list">Loading...</ul>
+        <p id="last-updated">Loading...</p>
+        <button onclick="updateData()">Update Now</button>
+    </div>
+</body>
+</html>
